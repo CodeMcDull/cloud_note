@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!-- EmpMapper.xml 在com.tarena.entity 包中  -->  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.tedu.cloud_note.dao.NoteDao">
+	<select id="findByBookId" parameterType="string" resultType="Map">
+		select cn_note_id,cn_note_title from cn_note where cn_notebook_id=#{bookId}
+		and cn_note_status_id='1'
+	</select>
+	<select id="findByNoteId" parameterType="string" resultType="cn.tedu.cloud_note.entity.Note">
+		select * from cn_note where cn_note_id=#{noteId}
+	</select>
+	<update id="updateNote" parameterType="cn.tedu.cloud_note.entity.Note">
+		update cn_note set cn_note_title=#{cn_note_title},cn_note_body=#{cn_note_body},
+		cn_note_last_modify_time=#{cn_note_last_modify_time} where cn_note_id=#{cn_note_id}
+	</update>
+	<insert id="save" parameterType="cn.tedu.cloud_note.entity.Note">
+		insert into cn_note(
+		cn_note_id,
+		cn_notebook_id,
+		cn_user_id,
+		cn_note_status_id,
+	    cn_note_type_id,
+		cn_note_title,
+		cn_note_body,
+	 	cn_note_create_time,
+		cn_note_last_modify_time
+		)values(
+		#{cn_note_id},
+		#{cn_notebook_id},
+		#{cn_user_id},
+		#{cn_note_status_id},
+	    #{cn_note_type_id},
+		#{cn_note_title},
+		#{cn_note_body},
+	 	#{cn_note_create_time},
+		#{cn_note_last_modify_time}
+		)
+	</insert>
+	<update id="delete" parameterType="cn.tedu.cloud_note.entity.Note">
+		update cn_note set 
+			<if test="cn_note_type_id!=null">
+		 		cn_note_type_id=#{cn_note_type_id},
+			</if>
+			<if test="cn_note_status_id!=null">
+				cn_note_status_id=#{cn_note_status_id},
+			</if>
+			<if test="cn_notebook_id!=null">
+				cn_notebook_id=#{cn_notebook_id},
+			</if>
+			<if test="cn_note_title!=null">
+				cn_note_title=#{cn_note_title},
+			</if>
+			<if test="cn_note_body!=null">
+				cn_note_body=#{cn_note_body},
+			</if>
+			<if test="cn_note_last_modify_time!=null">
+				cn_note_last_modify_time=#{cn_note_last_modify_time}
+			</if>
+			where cn_note_id=#{cn_note_id}
+	</update>
+	
+	<update id="updateNoteByMap" parameterType="map">
+		update 
+			cn_note 
+		set 
+			<trim suffixOverrides=",">
+			<if test="title!=null">
+			cn_note_title=#{title},
+			</if>
+			<if test="body!=null">
+			cn_note_body=#{body},
+			</if>
+			<choose>
+				<when test="time!=null">
+					cn_note_last_modify_time=#{time}
+				</when>
+				<otherwise>
+					cn_note_last_modify_time=unix_timestamp()
+				</otherwise>
+			</choose>
+			</trim>
+		where 
+			cn_note_id=#{noteId}
+	</update>
+	
+	<delete id="deleteNotes" parameterType="map">
+		delete from cn_note
+		 where 
+		<if test="status!=null">
+		cn_note_status_id=#{status} and
+		</if>
+		cn_note_id in
+		<foreach collection="ids" item="id"
+				open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	<delete id="deleteNote" parameterType="string">
+		delete from cn_note where cn_note_id=#{id}
+	</delete>
+</mapper>
+
+
+
+
+
+
+
